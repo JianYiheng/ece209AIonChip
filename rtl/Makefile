@@ -38,7 +38,7 @@ display: $(TBWAVE)
 	$(VIEWER) $(TBWAVE) &
 
 clean:
-	rm -f $(TBWAVE) $(COUTPUT) $(SOUTPUT)
+	rm -f $(TBWAVE) $(COUTPUT) $(SOUTPUT) *.vcd
 
 # make dependencies
 $(TBWAVE): $(COUTPUT)
