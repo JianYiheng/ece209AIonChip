@@ -58,7 +58,7 @@ module dsp_mac(
             dsp_out <= 0;
         end else begin
             dsp_inter_0 <= A_s + D_s;
-            dsp_inter_1 <= dsp_inter_0 * B_s;
+            dsp_inter_1 <= dsp_inter_0 * B_s1;
             dsp_out <= dsp_inter_1 + C_s2;
         end
     end

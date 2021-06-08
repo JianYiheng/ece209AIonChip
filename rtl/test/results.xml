@@ -1,6 +1,0 @@
-<testsuites name="results">
-  <testsuite name="all" package="all">
-    <property name="random_seed" value="1622651078" />
-    <testcase name="testbench" classname="arithmetic_tb" file="/home/beihai/Documents/ece209_lei/209-Project/OptionC/rtl/test/arithmetic_tb.py" lineno="25" time="0.0375673770904541" sim_time_ns="2000.001" ratio_time="53237.706619347715" />
-  </testsuite>
-</testsuites>

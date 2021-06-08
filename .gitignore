@@ -1,3 +1,12 @@
 rtl/simulation
 rtl/work
 rtl/output
+rtl/test/__pycache__
+
+vivado_prj/
+
+data/.vscode
+
+*.vvp
+*.xml
+*.vcd

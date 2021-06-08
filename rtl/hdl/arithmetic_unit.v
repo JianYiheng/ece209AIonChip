@@ -25,7 +25,7 @@
 
 
 module arithmetic_unit (
-  output  wire    [31 : 0]      p                         ,
+  output  reg    [31 : 0]       p                         ,
 
   input           [15 : 0]      x                         ,
   input           [ 7 : 0]      y                         ,
@@ -46,44 +46,54 @@ module arithmetic_unit (
   wire            [ 6 : 0]      dsp_a_part1               ;
   wire            [ 6 : 0]      dsp_a_part2               ;
 
-  reg             [ 2 : 0]      dsp_c_flag  = 0           ;
-  reg             [47 : 0]      dsp_c_nd    = 0           ;
+  wire            [ 2 : 0]      dsp_c_flag                ;
+  wire            [47 : 0]      dsp_c_nd                  ;
 
-  assign dsp_a_part0  = $signed(x[3 : 0])                                     ;
-  assign dsp_a_part1  = {{(3){x[7]}}, x[7 : 4]} - {6'h0, x[3]}                ;
-  assign dsp_a_part2  = {{(3){x[11]}}, x[11 : 8]} - {6'h0, dsp_a_part1[6]}    ;
+  reg             [15 : 0]      x_s                       ; 
+  reg             [7  : 0]      y_s                       ;
+  reg             [31:  0]      p_s                       ;
 
   always @(posedge clk) begin
-    dsp_c_flag[0] <= (x[3] ^ y[3]) & (|x[3 : 0]) & (|y[3 : 0])                ;
-    dsp_c_flag[1] <= (x[7] ^ y[3]) & (|x[7 : 4]) & (|y[3 : 0])              ;
-    dsp_c_flag[2] <= (x[11] ^ y[3]) & (|x[11 : 8]) & (|y[3 : 0])            ;
+      if (reset) begin
+          x_s <= 0;
+          y_s <= 0;
+      end else begin
+          x_s <= x;
+          y_s <= y;
+      end
   end
 
+  assign dsp_a_part0  = $signed(x_s[3 : 0])                                     ;
+  assign dsp_a_part1  = {{(3){x_s[7]}}, x_s[7 : 4]} - {6'h0, x_s[3]}                ;
+  assign dsp_a_part2  = {{(3){x_s[11]}}, x_s[11 : 8]} - {6'h0, dsp_a_part1[6]}    ;
+
+  assign  dsp_c_flag[0] = (x_s[3] ^ y_s[3]) & (|x_s[3 : 0]) & (|y_s[3 : 0])                ;
+  assign  dsp_c_flag[1] = (x_s[7] ^ y_s[3]) & (|x_s[7 : 4]) & (|y_s[3 : 0])              ;
+  assign  dsp_c_flag[2] = (x_s[11] ^ y_s[3]) & (|x_s[11 : 8]) & (|y_s[3 : 0])            ;
+
+  assign  dsp_c_nd  =  ((x_s[7] ^ y_s[7]) & 
+                   (|x_s[7 : 0]) & 
+                   (|y_s[7 : 0])) ? 48'h0000_0001_0000 : 48'h0          ;
+
   always @(posedge clk) begin
-    dsp_c_nd  <=  ((x[7] ^ y[7]) & 
-                   (|x[7 : 0]) & 
-                   (|y[7 : 0])) ? 48'h0000_0001_0000 : 48'h0          ;
+    if ( mode )
+      dsp_a <= $signed({dsp_a_part2, dsp_a_part1, dsp_a_part0})         ;
+    else
+      dsp_a <= $signed(x_s[7 : 0])                                      ;
   end
 
   always @(posedge clk) begin
     if ( mode )
-      dsp_a <= $signed({dsp_a_part2, dsp_a_part1, dsp_a_part0})       ;
+      dsp_b <= $signed(y_s[3 : 0])                                      ;
     else
-      dsp_a <= $signed(x[7 : 0])                                      ;
+      dsp_b <= $signed(y_s)                                             ;
   end
 
   always @(posedge clk) begin
     if ( mode )
-      dsp_b <= $signed(y[3 : 0])                                      ;
+      dsp_d <= $signed(x_s[15 : 12]) << 21                              ;
     else
-      dsp_b <= $signed(y)                                             ;
-  end
-
-  always @(posedge clk) begin
-    if ( mode )
-      dsp_d <= $signed(x[15 : 12]) << 21                              ;
-    else
-      dsp_d <= $signed(x[15 : 8]) << 16                               ;
+      dsp_d <= $signed(x_s[15 : 8]) << 16                               ;
   end
 
   always @(posedge clk) begin
@@ -101,6 +111,7 @@ module arithmetic_unit (
     else
       dsp_c     <=  dsp_c_nd                    ;
   end
+  
 
   (*use_dsp48 = "yes"*) dsp_mac u0_dsp_mac (
     .CLK    ( clk         ),
@@ -122,11 +133,19 @@ module arithmetic_unit (
 //     .P      ( dsp_p       ) 
 //   );
 
-  assign p = mode ? {dsp_p[27], dsp_p[27:21],
+  assign p_s = mode ? {dsp_p[27], dsp_p[27:21],
                      dsp_p[20], dsp_p[20:14],
                      dsp_p[13], dsp_p[13: 7],
                      dsp_p[ 6], dsp_p[ 6: 0]} :
-                    dsp_p[31:0]                 ;
+                     dsp_p[31:0]                 ;
+
+  always @(posedge clk) begin
+      if (reset) begin
+          p <= 0;
+      end else begin
+          p <= p_s;
+      end
+  end
 
   initial begin
       $dumpfile("arithmetic_unit.vcd");
