@@ -66,6 +66,7 @@ for i in range(0, H - Kh + 1, Sh):
             for jj in range(len(w1)):
                 weight_pe.append(w1[jj])
                 weight_pe.append(w2[jj])
+        breakpoint()
         # PE compute
         #
         # Values for your testbench at each round !!!
