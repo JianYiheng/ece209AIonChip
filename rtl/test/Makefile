@@ -9,7 +9,7 @@ TOPLEVEL_LANG ?= verilog
 
 HDL_DIR = $(PWD)/../hdl
 
-VERILOG_SOURCES += $(HDL_DIR)/arithmetic_unit.v
+VERILOG_SOURCES += $(HDL_DIR)/arithmetic_unit_alt.v
 VERILOG_SOURCES += $(HDL_DIR)/dsp_mac.v
 
 TOPLEVEL = arithmetic_unit

@@ -6,6 +6,7 @@ rtl/test/__pycache__
 vivado_prj/
 
 data/.vscode
+data/*.npy
 
 *.vvp
 *.xml

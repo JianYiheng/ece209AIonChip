@@ -55,10 +55,10 @@ module arithmetic_unit_tb();
       end
   end
 
-  initial begin
-      $dumpfile("icout/arithmetic_unit_wave.lxt");
-      $dumpvars(0, arithmetic_unit_tb);
-  end
+  // initial begin
+  //     $dumpfile("icout/arithmetic_unit_wave.lxt");
+  //     $dumpvars(0, arithmetic_unit_tb);
+  // end
 
   arithmetic_unit u0_arithmetic_unit (
     .p            ( p                 ),
